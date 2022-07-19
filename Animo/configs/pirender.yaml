@@ -1,0 +1,78 @@
+gpu: [0]
+working_dir : None
+resume_path: None
+
+method: pirender
+dataset_name: animeceleb
+dataset_folder: rotation
+
+dataset_params:
+  root_dir: /home/nas2_userF/dataset/anime_talk/animeceleb/combined_default/
+  frame_shape: [256, 256, 3]
+  id_sampling: True
+  augmentation_params:
+    flip_param:
+      time_flip: False
+    jitter_param:
+      brightness: 0.1
+      contrast: 0.1
+      saturation: 0.1
+      hue: 0.1
+
+model_params:
+  mappingnet_params:
+    coeff_nc: 20
+    descriptor_nc: 256
+    layer: 3
+    multi_frame: False
+  warpingnet_params:
+    encoder_layer: 5
+    decoder_layer: 3
+    base_nc: 32
+  editingnet_params:
+    layer: 3
+    num_res_blocks: 2
+    base_nc: 64
+  common:
+    image_nc: 3
+    descriptor_nc: 256
+    max_nc: 256
+    use_spect: False
+
+train_params:
+  num_epochs: 200
+  batch_size: 8
+  num_repeats: 75
+  lr_generator: 0.0001
+  num_workers: 4
+  
+  scales: [1, 0.5, 0.25, 0.125]
+  checkpoint_freq: 10
+  transform_params:
+    sigma_affine: 0.05
+    sigma_tps: 0.005
+    points_tps: 5
+  loss_weights:
+    weight_perceptual_warp: 2.5
+    weight_perceptual_final: 4
+  vgg_param_warp:
+    network: vgg19
+    layers: ['relu_1_1', 'relu_2_1', 'relu_3_1', 'relu_4_1', 'relu_5_1']
+    use_style_loss: False
+    num_scales: 4
+  vgg_param_final:
+    network: vgg19
+    layers: ['relu_1_1', 'relu_2_1', 'relu_3_1', 'relu_4_1', 'relu_5_1']
+    use_style_loss: True
+    num_scales: 4      
+    style_to_perceptual: 250
+  init:
+    type: 'normal'
+    gain: 0.02
+
+# TODO: change it to enable CLI
+hydra:
+  job:
+    id: pirender
+  run:
+    dir: outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}_${hydra.job.id}
