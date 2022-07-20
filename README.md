@@ -34,6 +34,6 @@ If you find this work useful for your research, please cite our paper:
 
 ## Acknowledgments
 
-We appreciate other outstanding projects: series of [talking-head-anime](https://github.com/pkhungurn), [Making Anime faces with StyleGan](https://www.gwern.net/Faces#stylegan-2) that inspire us.
+We appreciate other outstanding projects: series of [talking-head-anime](https://github.com/pkhungurn), [Making Anime faces with StyleGan](https://www.gwern.net/Faces#stylegan-2) that inspired us.
 Also, we would like to thank the original authors of the collected 3D model, and open the list of their names and URLs in this [file](https://drive.google.com/file/d/1N9hIshJ_gQcFmVeelmQhl7-j_zlyTcwN/view?usp=sharing).
-In addition, the model code borrows heavily from [FOMM](https://github.com/AliaksandrSiarohin/first-order-model) and [PIRenderer](https://github.com/RenYurui/PIRender).
+The model code borrows heavily from [FOMM](https://github.com/AliaksandrSiarohin/first-order-model) and [PIRenderer](https://github.com/RenYurui/PIRender).
