@@ -1,5 +1,9 @@
 ## AnimeCeleb &mdash; Official Dataset & PyTorch Implementation
 
+**\*\*\*\*\* New: Follow-up research for Editing Images using Sketch is available at https://github.com/kangyeolk/Paint-by-Sketch \*\*\*\*\***<br>
+
+
+
 ![Teaser image](./assets/teaser.png)
 
 > **AnimeCeleb: Large-Scale Animation CelebHeads Dataset for Head Reenactment**<br>
