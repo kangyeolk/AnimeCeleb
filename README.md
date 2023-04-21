@@ -1,6 +1,6 @@
 ## AnimeCeleb &mdash; Official Dataset & PyTorch Implementation
 
-**\*\*\*\*\* New: Follow-up research for Editing Images using Sketch is available at https://github.com/kangyeolk/Paint-by-Sketch \*\*\*\*\***<br>
+**\*\*\*\*\* New: Follow-up research by our team is available at https://github.com/kangyeolk/Paint-by-Sketch \*\*\*\*\***<br>
 
 
 
