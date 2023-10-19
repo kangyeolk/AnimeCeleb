@@ -22,6 +22,7 @@ Source | Driving | Animo | EDTN
 
 Since our code includes the DECA Encoder, refer to this [link](https://github.com/yfeng95/DECA.git)
  to complete the environment setup.
+Especially, Getting Started/Requirements.
 
 In addition, we need the DECA code along with our code.
 ```
@@ -35,7 +36,8 @@ git clone https://github.com/YadiraF/DECA
 cd DECA
 bash install_conda.sh
 ```
-Also, you have to down load the released model as pretrained model from the [link](https://github.com/yfeng95/DECA.git)
+Also, you have to download the released model as pretrained model. 
+You can find the [download link](https://drive.google.com/file/d/1rp8kdyLPvErw2dTmqtjISRVvQLj6Yzje/view) from the [link](https://github.com/yfeng95/DECA.git)'s Training/start training/released model
 
 ## Dataset
 
@@ -115,7 +117,12 @@ Now, after training the two networks, we can create a gif using `infer.py`. Befo
 python infer.py --path_pose='./example/vox_deca' --anime_basis_path='./example/basis.png'
 ```
 
+## DEMO
+
+If you want to put your video in the model, you can use [our demo](https://github.com/kangyeolk/AnimeCeleb/tree/main/EDTN/demo).
+
 ## Citation
+
 If you find this work useful for your research, please cite our paper:
 
 ```
