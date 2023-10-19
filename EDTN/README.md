@@ -2,7 +2,11 @@
 
 ### [Project Page](https://keh0t0.github.io/research/EDTN/) | [Paper](https://arxiv.org/abs/2310.10073)
 
-![Teaser image](./assert/teaser_2.jpg)
+<!-- ![Teaser image](./assert/teaser_2.jpg) -->
+<img src="./assert/result.gif" width="800">
+<img src="./assert/result2.gif" width="800">
+<img src="./assert/result3.gif" width="800">
+### Source | Driving | Animo | EDTN
 
 > **Expression Domain Translation Network for Cross-domain Head Reenactment**<br>
 > [Taewoong Kang](https://keh0t0.github.io/)\*<sup>1</sup>, [Jeongsik Oh](https://github.com/JEONGSIKOH0)\*<sup>2</sup>, [Jaeseong Lee](https://leejesse.github.io/)<sup>1</sup>, [Sunghyun Park](https://psh01087.github.io/)<sup>2</sup>, [Jaegul Choo](https://sites.google.com/site/jaegulchoo)<sup>2</sup><br>
