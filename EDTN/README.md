@@ -2,12 +2,7 @@
 
 ### [Project Page](https://keh0t0.github.io/research/EDTN/) | [Paper](https://arxiv.org/abs/2310.10073)
 
-<!-- ![Teaser image](./assert/teaser_2.jpg) -->
-<img src="./assert/result.gif" width="600">
-<img src="./assert/result2.gif" width="600">
-<img src="./assert/result3.gif" width="600">
-
-Source | Driving | Animo | EDTN
+![Teaser image](./assets/teaser_2.jpg)
 
 > **Expression Domain Translation Network for Cross-domain Head Reenactment**<br>
 > [Taewoong Kang](https://keh0t0.github.io/)\*<sup>1</sup>, [Jeongsik Oh](https://github.com/JEONGSIKOH0)\*<sup>2</sup>, [Jaeseong Lee](https://leejesse.github.io/)<sup>1</sup>, [Sunghyun Park](https://psh01087.github.io/)<sup>2</sup>, [Jaegul Choo](https://sites.google.com/site/jaegulchoo)<sup>2</sup><br>
@@ -16,7 +11,7 @@ Source | Driving | Animo | EDTN
 >
 > **Abstract:** Despite the remarkable advancements in head reenactment, the existing methods face challenges in cross-domain head reenactment, which aims to transfer human motions to domains outside the human, including cartoon characters. It is still difficult to extract motion from out-of-domain images due to the distinct appearances, such as large eyes. Recently, previous work introduced a large-scale anime dataset called AnimeCeleb and a cross-domain head reenactment model including an optimization-based mapping function to translate the human domain’s expressions to the anime domain. However, we found that the mapping function, which relies on a subset of expressions, imposes limitations on the mapping of various expressions. To solve this challenge, we introduce a novel expression domain translation network that transforms human expressions into anime expressions. Specifically, to maintain the geometric consistency of expressions between the input and output of the expression domain translation network, we employ a 3D geometric-aware loss function that reduces the distances between the vertices in the 3D mesh of the input and output.  By doing so, it forces high-fidelity and one-to-one mapping with respect to two cross-expression domains. Our method outperforms existing methods in both qualitative and quantitative analysis, marking a significant advancement in the field of cross-domain head reenactment.
 
-![Model Figure](./assert/model_figure.jpg)
+![Model Figure](./assets/model_figure.jpg)
 
 ## Installation
 
