@@ -3,7 +3,7 @@ from .augmentation import *
 from albumentations import *
 from torch.utils.data import DataLoader
 
-from data.animeceleb import AnimeCelebDataset, AnimeCelebAndVoxDataset, DatasetRepeater
+from data.animeceleb import AnimeCelebDataset, AnimeCelebAndVoxDataset, DatasetRepeater, AnimeCelebAndDecaDataset
 
 
 class DatasetModule(pl.LightningDataModule):
@@ -27,7 +27,11 @@ class DatasetModule(pl.LightningDataModule):
                 self.train_set = AnimeCelebAndVoxDataset(mode='train', **self.cfg['dataset_params'])
                 self.train_set = self.repeat_dataset(self.train_set)
                 self.valid_set = AnimeCelebAndVoxDataset(mode='valid', **self.cfg['dataset_params'])
-            
+            elif self.dataset_name == 'animeceleb_deca':
+                self.train_set = AnimeCelebAndDecaDataset(mode='train', **self.cfg['dataset_params'])
+                self.train_set = self.repeat_dataset(self.train_set)
+                self.valid_set = AnimeCelebAndDecaDataset(mode='valid', **self.cfg['dataset_params'])
+
     def repeat_dataset(self, dataset):
         return DatasetRepeater(dataset, self.cfg.train_params.num_repeats)
 

@@ -22,6 +22,16 @@ def read_mat(mat_file_path):
 
     return pose
 
+def read_deca(mat_file_path):
+    """
+    Mat file keys:
+      - dict_keys(['id', 'exp', 'tex', 'angle', 'gamma', 'trans'])
+    """
+    mat_file = loadmat(mat_file_path)        
+    pose = np.concatenate((mat_file['shape'], mat_file['exp'], mat_file['pose']), axis=-1).squeeze()
+    # trans_params = np.array([float(item) for item in np.hsplit(mat_file['trans_params'], 5)])
+    # pose = np.concatenate((pose, trans_params[2:]), axis=-1)
+    return pose
 
 class AnimeCelebDataset(Dataset):
 
@@ -159,7 +169,6 @@ class AnimeCelebDataset(Dataset):
         
         return out
 
-    
 class AnimeCelebAndVoxDataset(Dataset):
 
     def __init__(self, root_dir_anime, root_dir_vox, frame_shape=(256, 256, 3), 
@@ -316,6 +325,227 @@ class AnimeCelebAndVoxDataset(Dataset):
         
         return out
     
+class AnimeCelebAndDecaDataset(Dataset):
+
+    def __init__(self, root_dir_anime, root_dir_vox, frame_shape=(256, 256, 3), 
+                 id_sampling=False, mode='train', dataset_folder='rotation', viz_3dmm=False,
+                 random_seed=0, augmentation_params=None):
+        self.is_train = True if mode == 'train' else False
+        self.root_dir_anime = root_dir_anime
+        self.root_dir_vox = os.path.join(root_dir_vox, 'train' if self.is_train else 'test')
+        self.pose_dir_vox = self.root_dir_vox.replace('images', 'deca')
+        self.basis_path = os.path.join(root_dir_anime, 'basis')
+        
+
+        # AnimeCeleb Pose Information
+        self.file_csv = pd.read_csv(os.path.join(root_dir_anime, 'combined_pose.csv'))        
+        print(f"Reading dataset information done! There are {len(self.file_csv)} files")
+        
+        self.image_path_anime = os.path.join(root_dir_anime, dataset_folder)
+        self.frame_shape = tuple(frame_shape)
+        
+        self.id_sampling = id_sampling
+        
+        # Save Cache.json of AnimeCeleb
+        json_file = os.path.join(root_dir_anime, 'cached.json')
+        if not os.path.exists(json_file):
+            print('There is no cached.json saving it for later, it will be used later...!')
+            self.videos_tree_anime = self.gather_same_identity_images()
+            with open(json_file,'w') as f:
+                json.dumps(self.videos_tree_anime, f)
+        else:
+            print('There is a cached.json, use it here...!')
+            with open(json_file) as f:
+                self.videos_tree_anime = json.load(f)
+        
+        # AnimeCeleb Video List
+        self.id_keys_anime = list(self.videos_tree_anime.keys())
+        
+        # Read Train & Test list   
+        if os.path.isfile('../Animo/data/train_list.txt'):        
+            self.train_ids_anime = [line[:-1] for line in open('../Animo/data/train_list.txt', 'r')]
+            self.test_ids_anime = [line[:-1] for line in open('../Animo/data/test_list.txt', 'r')]
+        elif os.path.isfile('./data/train_list.txt'):        
+            self.train_ids_anime = [line[:-1] for line in open('./data/train_list.txt', 'r')]
+            self.test_ids_anime = [line[:-1] for line in open('./data/test_list.txt', 'r')]
+        else:
+            print("error")
+        # self.train_ids_anime, self.test_ids_anime = train_test_split(self.id_keys_anime, random_state=random_seed, test_size=0.2)
+        print(f"Reading dataset done! There are {len(self.train_ids_anime)} identities to train and {len(self.test_ids_anime)} identities to test!")
+        
+        if mode == 'train':
+            self.using_ids_anime = self.train_ids_anime
+            self.viz_3dmm = False
+        elif mode == 'valid':
+            np.random.seed(0) # Fix frame sample for validation
+            self.using_ids_anime = self.test_ids_anime
+            self.viz_3dmm = viz_3dmm
+        
+        # VoxCeleb Video List
+        if id_sampling and (mode == 'train'):
+            videos_vox = {os.path.basename(video).split('#')[0] for video in os.listdir(self.pose_dir_vox)}
+            self.videos_vox = list(videos_vox)
+        elif id_sampling and (mode == 'valid'):
+            pose_videos = sorted(os.listdir(self.pose_dir_vox))
+            videos_vox = {os.path.basename(video).split('#')[0] for video in pose_videos}
+            self.videos_vox = sorted(list(videos_vox))
+            # self.videos_vox = os.listdir(self.pose_dir_vox)
+        
+        if self.is_train:
+            self.transform = AllAugmentationTransform(**augmentation_params)
+        else:
+            self.transform = None    
+    
+    def gather_same_identity_images(self):
+        self.identity_numbers = np.unique(list(self.file_csv['org_id'])).tolist()
+        videos = {}
+        for idx, number in enumerate(self.identity_numbers):
+            videos[number] = {'num_cluster': None, 'folder_name': None, 'img_names': [], 'pose_information': []}
+        for line_num in range(len(self.file_csv)):
+            line = list(self.file_csv.iloc[line_num])
+            if videos[line[0]]['num_cluster'] is None:
+                videos[line[0]]['num_cluster'] = line[1]                # num_cluster            
+            if videos[line[0]]['folder_name'] is None:
+                videos[line[0]]['folder_name'] = line[2].split('/')[0]  # png_name -> folder_name
+            videos[line[0]]['img_names'].append(line[2])                # png_name
+            videos[line[0]]['pose_information'].append(line[3:])
+        return videos
+
+    def __len__(self):
+        return min(len(self.using_ids_anime), len(self.videos_vox))
+    
+    def __getitem__(self, idx):
+        
+        out = {'anime': {}, 'vox': {}}
+
+
+        # start_time = time.time()
+
+        # Load VoxCeleb Frames
+        if self.is_train and self.id_sampling:
+            name = self.videos_vox[idx]
+            path_pose = np.random.choice(glob.glob(os.path.join(self.pose_dir_vox, name + '*.mp4')))
+            path_video = path_pose.replace('deca', 'images')
+        elif not self.is_train and self.id_sampling:            
+            name = self.videos_vox[idx]
+            path_pose = np.random.choice(glob.glob(os.path.join(self.pose_dir_vox, name + '*.mp4')))
+            path_video = path_pose.replace('deca', 'images')
+        # else:
+        #     name = self.videos_vox[idx]
+        #     path_video = os.path.join(self.root_dir_vox, name)
+        #     path_pose = os.path.join(self.pose_dir_vox, name)
+            
+        # now = time.time()
+        # print(f"{idx} vox data load : {now - start_time}sec")   
+
+        video_name = os.path.basename(path_video)
+        out['vox']['name'] = video_name
+        
+        # [Important] 변수 이름 중복
+        frames = sorted(os.listdir(str(path_pose)))
+        num_frames = len(frames)
+        frame_idx = np.sort(np.random.choice(num_frames, replace=True, size=2))
+        video_array_vox = [img_as_float32(io.imread(os.path.join(path_video, frames[idx].replace('.mat', '.png')))) for idx in frame_idx]
+        pose_array_vox = [read_deca(os.path.join(path_pose, frames[idx])) for idx in frame_idx]
+        
+        # Visualize 3DMM of VoxCeleb
+        if self.viz_3dmm:
+            path_viz_vox = path_video.replace('images', '3dmm_viz')
+            viz_array_vox = [img_as_float32(io.imread(os.path.join(path_viz_vox, frames[idx].replace('.mat', '.jpg')))) for idx in frame_idx]
+        
+        # now = time.time()
+        # print(f"{idx} start Anime load : {now - start_time}sec") 
+
+        # Load AnimeCeleb Frames
+        anime_idx = np.random.randint(0, len(self.using_ids_anime) - 1, 1)[0]
+        identity_to_sample = self.using_ids_anime[anime_idx]
+        video_name = identity_to_sample
+        num_cluster = self.videos_tree_anime[identity_to_sample]['num_cluster']
+        folder_name = self.videos_tree_anime[identity_to_sample]['folder_name']
+        video_items = self.videos_tree_anime[identity_to_sample]['img_names']
+        pose_items = self.videos_tree_anime[identity_to_sample]['pose_information']
+        out['anime']['num_cluster'] = num_cluster
+        out['anime']['folder_name'] = folder_name
+
+        # now = time.time()
+        # print(f"{idx} finish Anime load : {now - start_time}sec") 
+        
+        # [Important] 변수 이름 중복
+        num_frames = len(video_items)
+        frame_idx = np.sort(np.random.choice(num_frames, replace=True, size=2))
+        video_array_anime = [io.imread(os.path.join(self.image_path_anime, num_cluster, folder_name, video_items[idx])) for idx in frame_idx] # [0-1]
+        video_array_anime = [img_as_float32(np.resize(rgba2rgb(v), self.frame_shape)) for v in video_array_anime]
+        pose_array_anime = [pose_items[idx] for idx in frame_idx] # [0-1]
+        # basis_img = io.imread(os.path.join(self.basis_path, folder_name, 'basis.png'))
+        # basis_img = [img_as_float32(np.resize(rgba2rgb(basis_img), self.frame_shape))]
+        
+        # Visualize 3DMM of AnimeCeleb
+        if self.viz_3dmm:
+            path_viz_anime = self.image_path_anime.replace('rotation', 'rotation_3dmm_viz')
+            viz_array_anime = [io.imread(os.path.join(path_viz_anime, num_cluster, folder_name, video_items[idx].replace('.png', '.jpg'))) for idx in frame_idx]
+            viz_array_anime = [img_as_float32(np.resize(rgba2rgb(v), self.frame_shape)) for v in viz_array_anime]
+        
+        # now = time.time()
+        # print(f"{idx} Visualize Anime spent: {now - start_time}sec")
+
+        # Data Transformation & Augmentation
+        if self.transform is not None:
+            video_array_anime = self.transform(video_array_anime)
+            video_array_vox = self.transform(video_array_vox)
+            # basis_img = self.transform(basis_img)
+            if self.viz_3dmm:
+                viz_array_anime = self.transform(viz_array_anime)
+                viz_array_vox = self.transform(viz_array_vox)
+
+        # now = time.time()
+        # print(f"{idx} Data Transform, Augment : {now - start_time}sec")        
+
+        # Data of AnimeCeleb
+        source_anime = np.array(video_array_anime[0], dtype='float32')
+        driving_anime = np.array(video_array_anime[1], dtype='float32')
+        source_pose_anime = np.array(pose_array_anime[0], dtype='float32')
+        driving_pose_anime = np.array(pose_array_anime[1], dtype='float32')
+        # basis_img_anime = np.array(basis_img[0], dtype='float32')
+        
+        out['anime']['source'] = source_anime.transpose((2, 0, 1))
+        out['anime']['driving'] = driving_anime.transpose((2, 0, 1))
+        out['anime']['source_pose'] = source_pose_anime
+        out['anime']['driving_pose'] = driving_pose_anime
+        # out['anime']['basis'] = basis_img_anime.transpose((2, 0, 1))
+        
+        # now = time.time()
+        # print(f"{idx} Anime DATA output: {now - start_time}sec")
+
+        if self.viz_3dmm:
+            source_3dmm_anime = np.array(viz_array_anime[0], dtype='float32')
+            driving_3dmm_anime = np.array(viz_array_anime[1], dtype='float32')
+            out['anime']['source_3dmm'] = source_3dmm_anime.transpose((2, 0, 1))
+            out['anime']['driving_3dmm'] = driving_3dmm_anime.transpose((2, 0, 1))
+        
+        # Data of VoxCeleb
+        source_vox = np.array(video_array_vox[0], dtype='float32')
+        driving_vox = np.array(video_array_vox[1], dtype='float32')
+        source_pose_vox = np.array(pose_array_vox[0], dtype='float32')
+        driving_pose_vox = np.array(pose_array_vox[1], dtype='float32')
+        
+        out['vox']['source'] = source_vox.transpose((2, 0, 1))
+        out['vox']['driving'] = driving_vox.transpose((2, 0, 1))
+        out['vox']['source_pose'] = source_pose_vox
+        out['vox']['driving_pose'] = driving_pose_vox
+
+        # now = time.time()
+        # print(f"{idx} Vox DATA output: {now - start_time}sec") 
+        
+        if self.viz_3dmm:
+            source_3dmm_vox = np.array(viz_array_vox[0], dtype='float32')
+            driving_3dmm_vox = np.array(viz_array_vox[1], dtype='float32')
+            out['vox']['source_3dmm'] = source_3dmm_vox.transpose((2, 0, 1))
+            out['vox']['driving_3dmm'] = driving_3dmm_vox.transpose((2, 0, 1))
+
+        # now = time.time()
+        # print(f"{idx} load Finish: {now - start_time}sec")     
+        
+        return out
 
 class DatasetRepeater(Dataset):
     """
