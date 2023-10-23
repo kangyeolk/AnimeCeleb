@@ -22,7 +22,7 @@
 
 Source | Driving | Animo | (**New**) EDTN
 
-<img src="./EDTN/assets/result.gif" width="600">
+<img src="./EDTN/assets/result1.gif" width="600">
 <img src="./EDTN/assets/result2.gif" width="600">
 <img src="./EDTN/assets/result3.gif" width="600">
 
