@@ -90,7 +90,7 @@ We conduct experiments on the AnimeCeleb and Vox datasets with resolution of 512
 |Default|[link](https://drive.google.com/file/d/1jtOmO7Up0cd_d0jiILnRiUw4M6loG00f/view?usp=sharing)|
 |Cartoon|[link](https://drive.google.com/file/d/1w1uNknSskDZYDMEfkQAN1lTcmCmT65dl/view?usp=sharing)|
 
-You can get pre-trained network of Animo [link](https://github.com/kangyeolk/AnimeCeleb/tree/main/Animo#pre-trained-networks).
+You can get pre-trained network of Animo [here](https://github.com/kangyeolk/AnimeCeleb/tree/main/Animo#pre-trained-networks).
 
 ## Training
 
