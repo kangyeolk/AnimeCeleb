@@ -5,6 +5,7 @@ import os
 
 from runners.fomm import RunnerFOMM
 from runners.pirender import RunnerPIRender
+from runners.pirender_mlp import RunnerPIRenderMLP
 from runners.animo import RunnerAnimo
 
 from models import get_model_pack
@@ -29,6 +30,8 @@ def get_runner(cfg):
         runner = RunnerFOMM(cfg, model_pack, start_epoch)
     elif cfg.method == 'pirender':
         runner = RunnerPIRender(cfg, model_pack, start_epoch)
+    elif cfg.method == 'pirender_mlp':
+        runner = RunnerPIRenderMLP(cfg, model_pack, start_epoch)
     elif cfg.method == 'animo':
         runner = RunnerAnimo(cfg, model_pack, start_epoch)
     
@@ -40,6 +43,8 @@ def get_runner_class(cfg):
         _class = RunnerFOMM
     elif cfg.method == 'pirender':
         _class = RunnerPIRender
+    elif cfg.method == 'pirender_mlp':
+        _class = RunnerPIRenderMLP
     elif cfg.method == 'animo':
         _class = RunnerAnimo
     

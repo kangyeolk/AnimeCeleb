@@ -90,6 +90,8 @@ We conduct experiments on the AnimeCeleb and Vox datasets with resolution of 512
 |Default|[link](https://drive.google.com/file/d/1jtOmO7Up0cd_d0jiILnRiUw4M6loG00f/view?usp=sharing)|
 |Cartoon|[link](https://drive.google.com/file/d/1w1uNknSskDZYDMEfkQAN1lTcmCmT65dl/view?usp=sharing)|
 
+You can get pre-trained network of Animo here[link](https://github.com/kangyeolk/AnimeCeleb/tree/main/Animo#pre-trained-networks).
+
 ## Training
 
 We need to train the Expression domain translation network (EDTN) and the Anime generator separately.
@@ -109,7 +111,7 @@ python ../Animo/train_AG.py --config-name=Anime_generator.yaml gpu=[0,1]
 Now, after training the two networks, we can create a gif using `infer.py`. Before executing, make sure the paths containing each of the weights are correctly set.
 
 ```
-python infer.py --path_pose='./example/vox_deca' --anime_basis_path='./example/basis.png'
+python infer.py --path_pose='./example/vox_deca' --anime_basis_path='./example/basis.png' --exp_path='./pretrained/Anime_generator_2d'
 ```
 
 ## DEMO

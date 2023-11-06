@@ -69,8 +69,9 @@ After downloading, you have to specify a root directory of AnimeCeleb dataset in
 
 ## Pre-trained networks
 
-The pre-trained networks will be updated soon. Please stay tuned.
+We conduct experiments on the AnimeCeleb and Vox datasets with resolution of 512 x 512. For convenience, we provide our trained network used in our experiments in the following links.
 
+|Animo|[link](https://drive.google.com/file/d/1PYdFbgSioUkSiFDZlAryHHH6CDQGsA5r/view?usp=sharing)|
 
 ## Training
 
