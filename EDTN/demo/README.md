@@ -6,6 +6,6 @@ Before you try, make sure that you completed environment setup. Follow the instr
 
 Try with:
 ```
-python demo.py --path_video='your_video_path' gpu=[0]
+python demo.py --path_video='your_video_path' --exp_path='./pretrained/Anime_generator_2d'
 ```
 
