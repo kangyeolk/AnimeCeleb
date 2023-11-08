@@ -1,5 +1,7 @@
 import torch
 import sys
+import imageio
+import matplotlib.pyplot as plt
 import json
 sys.path.insert(0, '../Animo')
 from data import get_dm
@@ -168,19 +170,42 @@ if __name__ == '__main__':
 
         save_image(grid, f'./results/{now}/{idx}.png')
 
-    frames = []
-    imgs = glob.glob(f'./results/{now}/*.png')
+    
+    
+    image_dir = os.path.join(f'./results/{now}')
+    output_dir = './results/'
+    
+    gif_config = {
+        'loop':1, 
+        'duration': 0.05 
+    }
+    
+    images = [plt.imread(os.path.join(image_dir, x)) for x in os.listdir(image_dir)]
+    images = [(img * 255).astype(np.uint8) for img in images]
 
-    for i in imgs:
-        new_frame = Image.open(i)
-        frames.append(new_frame)
 
-    frames[0].save(f'./results/{now}.gif', format='GIF',
-                append_images=frames[1:],
-                save_all=True,
-                duration=0.01,
-                loop=0
-                )
+    imageio.mimwrite(os.path.join(output_dir, f'{now}.gif'), 
+                    images, 
+                    format='gif', 
+                    **gif_config 
+                    )
+    
+    ### this method has some noise. So i choose the method above even if it takes some time.
+    ### if you want faster, you can use below method.
+
+    # frames = []
+    # imgs = glob.glob(f'./results/{now}/*.png')
+
+    # for i in imgs:
+    #     new_frame = Image.open(i)
+    #     frames.append(new_frame)
+
+    # frames[0].save(f'./results/{now}.gif', format='GIF',
+    #             append_images=frames[1:],
+    #             save_all=True,
+    #             duration=0.01,
+    #             loop=0
+    #             )
     
     print(f"gif saved.")
 

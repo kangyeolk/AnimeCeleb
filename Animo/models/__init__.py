@@ -20,18 +20,24 @@ def get_model_pack(cfg):
         model_pack['discriminator'] = discriminator
         model_pack['kp_detector'] = kp_detector
     
-    elif cfg.method == 'pirender':
+    elif cfg.method in ['pirender', 'pirender_mlp']:
         from models.pirender.model import FaceGenerator
 
         generator = FaceGenerator(mapping_net=cfg['model_params']['mappingnet_params'], 
                                   warpping_net=cfg['model_params']['warpingnet_params'], 
                                   editing_net=cfg['model_params']['editingnet_params'], 
                                   common=cfg['model_params']['common'])
+        generator_ema = FaceGenerator(mapping_net=cfg['model_params']['mappingnet_params'], 
+                                      warpping_net=cfg['model_params']['warpingnet_params'], 
+                                      editing_net=cfg['model_params']['editingnet_params'], 
+                                      common=cfg['model_params']['common'])
         
         # Weight Initialization
         generator.apply(weights_init(init_type='normal', gain=0.02, bias=None))
-        
+        accumulate(generator_ema, generator, 0)
+
         model_pack['generator'] = generator
+        model_pack['generator_ema'] = generator_ema
         
     elif cfg.method == 'animo':
         from models.animo.model import MappingNet, WarpingNet, EditingNet
@@ -74,3 +80,11 @@ def weights_update(state_dict, ckpt_name):
 def requires_grad(model, flag=True):
     for name, p in model.named_parameters():
         p.requires_grad = flag
+
+def accumulate(model1, model2, decay=0.999):
+    par1 = dict(model1.named_parameters())
+    par2 = dict(model2.named_parameters())
+
+    for k in par1.keys():
+        par1[k].data.mul_(decay).add_(par2[k].data, alpha=1 - decay)
+
