@@ -98,7 +98,7 @@ We need to train the Expression domain translation network (EDTN) and the Anime 
 
 To train EDTN:
 ```
-python train.py --hyper_id=train_1 gpu=[0]
+python train_EDTN.py --hyper_id=train_1 gpu=[0]
 ```
 
 To train Anime generator:
