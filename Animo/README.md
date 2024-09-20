@@ -73,7 +73,7 @@ We conduct experiments on the AnimeCeleb and Vox datasets with resolution of 512
 
 |Animo|Google Drive|
 |--------------|--------------|
-|Default|[link](https://drive.google.com/file/d/1PYdFbgSioUkSiFDZlAryHHH6CDQGsA5r/view?usp=sharing)|
+|Default|[link](https://drive.google.com/file/d/1LQ0SF3utHDhceUPMbVFRO-dfaWNdX_1r/view?usp=sharing)|
 
 ## Training
 
