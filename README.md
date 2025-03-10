@@ -1,6 +1,7 @@
 ## AnimeCeleb &mdash; Official Dataset & PyTorch Implementation
 
-**\*\*\*\*\* Follow-up research by our team is available at https://github.com/kangyeolk/Paint-by-Sketch \*\*\*\*\***<br>
+**\*\*\*\*\* New: The dataset seems to be broken at the moment. I'll fix it and re-upload it later.  \*\*\*\*\***<br>
+**\*\*\*\*\* New: Follow-up research by our team is available at https://github.com/kangyeolk/Paint-by-Sketch \*\*\*\*\***<br>
 **\*\*\*\*\* New: Follow-up research by our team is available in [this repository](./EDTN/) \*\*\*\*\***<br>
 
 
